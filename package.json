@@ -1,0 +1,52 @@
+{
+  "name": "slideshow-studio",
+  "version": "1.0.0",
+  "description": "Smart 3s Slideshow Creator & YouTube Batch Auto-Publisher",
+  "main": "electron-main.js",
+  "scripts": {
+    "dev": "cross-env ELECTRON_DEV=1 concurrently \"npm run start:backend\" \"npm run dev:frontend\" \"wait-on http://localhost:5174 && electron .\"",
+    "start": "electron .",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && pyinstaller --noconfirm --onedir --name server --add-data \"static;static\" --add-data \"client_secrets.json;.\" server.py",
+    "start:backend": "cd backend && python server.py",
+    "dist": "npm run build:frontend && npm run build:backend && electron-builder --win nsis"
+  },
+  "build": {
+    "appId": "com.chronostudio.desktop",
+    "productName": "ChronoStudio",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "electron-main.js",
+      "frontend/dist/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "backend/dist/server",
+        "to": "backend"
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "ChronoStudio"
+    }
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "electron": "^30.0.0",
+    "electron-builder": "^26.15.3",
+    "wait-on": "^8.0.1"
+  }
+}

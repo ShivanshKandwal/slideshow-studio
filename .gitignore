@@ -1,0 +1,41 @@
+# Node dependencies
+node_modules/
+.npm/
+
+# Build artifacts
+frontend/dist/
+dist/
+release/
+build/
+
+# Python cache & virtual environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+backend/__pycache__/
+backend/build/
+backend/dist/
+backend/*.spec
+
+# Sensitive user credentials & tokens (CRITICAL: never commit)
+token.json
+backend/token.json
+client_secrets.json
+backend/client_secrets.json
+.env
+*.env
+
+# Output & temp media folders
+SlideshowOutput/
+output/
+temp/
+*.mp4
+*.part
+
+# User data & IDE
+.vscode/
+.idea/
+ChronoStudio_UserData/
+*.log
