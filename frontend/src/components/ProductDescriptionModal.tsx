@@ -43,7 +43,7 @@ export const ProductDescriptionModal: React.FC<ProductDescriptionModalProps> = (
         <div className="space-y-4 mb-8">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-crimson-500/10 border border-crimson-500/30 text-crimson-400 text-xs font-mono font-medium">
             <Sparkles className="w-3.5 h-3.5 animate-pulse-slow" />
-            <span>ChronoStudio v1.0 • Desktop Professional Suite</span>
+            <span>ChronoStudio v1.1 • Desktop Professional Suite</span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">

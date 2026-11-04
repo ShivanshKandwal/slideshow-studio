@@ -1,6 +1,6 @@
 {
   "name": "slideshow-studio",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Smart 3s Slideshow Creator & YouTube Batch Auto-Publisher",
   "main": "electron-main.js",
   "scripts": {

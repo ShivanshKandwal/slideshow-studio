@@ -61,7 +61,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onClick={onOpenProductInfo}
                 className="text-[10px] uppercase font-mono px-2 py-0.5 rounded-full bg-crimson-500/10 hover:bg-crimson-500/20 text-crimson-400 border border-crimson-500/20 font-medium transition-colors cursor-pointer flex items-center gap-1"
               >
-                <span>v1.0 Pro</span>
+                <span>v1.1 Pro</span>
                 <Info className="w-3 h-3 text-crimson-400" />
               </button>
             </div>
