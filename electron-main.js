@@ -52,6 +52,7 @@ function startBackend() {
   backendProcess = spawn(backendExec, args, {
     cwd: cwd,
     shell: false,
+    windowsHide: true,
     stdio: ['ignore', logFd, logFd]
   });
 

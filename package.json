@@ -8,7 +8,7 @@
     "start": "electron .",
     "dev:frontend": "cd frontend && npm run dev",
     "build:frontend": "cd frontend && npm run build",
-    "build:backend": "cd backend && pyinstaller --noconfirm --onedir --name server --add-data \"static;static\" --add-data \"client_secrets.json;.\" --add-data \"bin;bin\" server.py",
+    "build:backend": "cd backend && pyinstaller --noconfirm --onedir --noconsole --name server --add-data \"static;static\" --add-data \"client_secrets.json;.\" --add-data \"bin;bin\" server.py",
     "start:backend": "cd backend && python server.py",
     "dist": "npm run build:frontend && npm run build:backend && electron-builder --win nsis"
   },
