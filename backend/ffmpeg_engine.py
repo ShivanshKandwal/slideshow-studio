@@ -44,6 +44,26 @@ class FFmpegSlideshowEngine:
         else:
             self.width, self.height = 1920, 1080
 
+        # On Windows, suppress flashing console windows spawned by subprocess
+        self.startupinfo = None
+        self.creationflags = 0
+        if os.name == 'nt':
+            self.startupinfo = subprocess.STARTUPINFO()
+            self.startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            self.startupinfo.wShowWindow = 0 # SW_HIDE
+            self.creationflags = subprocess.CREATE_NO_WINDOW
+
+    def _run_ffmpeg(self, cmd: List[str]):
+        """Runs an FFmpeg command with window creation suppressed on Windows."""
+        return subprocess.run(
+            cmd,
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            startupinfo=self.startupinfo,
+            creationflags=self.creationflags
+        )
+
     def get_media_files(self, folder_path: str) -> List[str]:
         valid_exts = {'.jpg', '.jpeg', '.png', '.webp', '.bmp', '.mp4', '.mov', '.avi', '.mkv', '.webm'}
         p = Path(folder_path)
@@ -105,7 +125,7 @@ class FFmpegSlideshowEngine:
                 "-c", "copy",
                 silent_mp4
             ]
-            subprocess.run(concat_cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            self._run_ffmpeg(concat_cmd)
 
             total_duration = len(segment_files) * duration_per_item
 
@@ -126,7 +146,7 @@ class FFmpegSlideshowEngine:
                 # No audio / silent video
                 mux_cmd = [self.ffmpeg_bin, "-y", "-i", silent_mp4, "-c", "copy", output_path]
 
-            subprocess.run(mux_cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            self._run_ffmpeg(mux_cmd)
             return True
 
         finally:
@@ -211,7 +231,7 @@ class FFmpegSlideshowEngine:
             "-r", str(fps),
             out_path
         ]
-        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        self._run_ffmpeg(cmd)
 
     def _process_video_clip(self, video_path: str, out_path: str, duration: float):
         """
@@ -238,4 +258,4 @@ class FFmpegSlideshowEngine:
             "-an",
             out_path
         ]
-        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        self._run_ffmpeg(cmd)
