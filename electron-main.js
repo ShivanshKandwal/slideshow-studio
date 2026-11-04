@@ -43,14 +43,23 @@ function startBackend() {
   const args = isPackaged ? [] : ['server.py'];
   console.log(`Starting backend: ${backendExec} in ${cwd}`);
   
+  // Write backend logs to %APPDATA%/ChronoStudio/backend.log so debugging is easy on any machine
+  const fs = require('fs');
+  const logDir = path.join(app.getPath('appData'), 'ChronoStudio');
+  if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
+  const logStream = fs.createWriteStream(path.join(logDir, 'backend.log'), { flags: 'a' });
+
   backendProcess = spawn(backendExec, args, {
     cwd: cwd,
-    shell: !isPackaged,
-    stdio: 'ignore'
+    shell: false,
+    stdio: ['ignore', logStream, logStream]
   });
 
   backendProcess.on('error', (err) => {
     console.error('Failed to start backend process:', err);
+    try {
+      fs.appendFileSync(path.join(logDir, 'backend.log'), `[ERROR] Failed to start backend: ${err.message}\n`);
+    } catch (e) {}
   });
 }
 

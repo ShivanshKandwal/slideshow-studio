@@ -22,6 +22,8 @@ interface ConfigurationPanelProps {
   setTargetMinutes: (val: number) => void;
   aspectRatio: '9:16' | '16:9';
   setAspectRatio: (val: '9:16' | '16:9') => void;
+  transitionEffect: string;
+  setTransitionEffect: (val: string) => void;
   titleTemplate: string;
   setTitleTemplate: (val: string) => void;
   privacyStatus: 'private' | 'unlisted' | 'public';
@@ -39,6 +41,8 @@ export const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({
   setTargetMinutes,
   aspectRatio,
   setAspectRatio,
+  transitionEffect,
+  setTransitionEffect,
   titleTemplate,
   setTitleTemplate,
   privacyStatus,
@@ -231,6 +235,40 @@ export const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({
               <div className="text-[10px] text-neutral-500">1920 × 1080 YouTube</div>
             </div>
           </button>
+        </div>
+      </div>
+
+      {/* 4. TRANSITION MOTION EFFECTS */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-medium text-neutral-300 flex items-center gap-1.5">
+            <Film className="w-3.5 h-3.5 text-crimson-400" /> Motion Transition
+          </label>
+          <span className="text-[10px] font-mono text-neutral-400">3s Pacing</span>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {[
+            { id: 'dynamic_mix', label: 'Dynamic Mix', desc: 'Auto Zoom In/Out & Pan' },
+            { id: 'zoom_in', label: 'Zoom In', desc: 'Documentary Push' },
+            { id: 'zoom_out', label: 'Zoom Out', desc: 'Smooth Pull Back' },
+            { id: 'static', label: 'Classic Static', desc: 'Zero Animation' }
+          ].map((eff) => (
+            <button
+              key={eff.id}
+              type="button"
+              onClick={() => setTransitionEffect(eff.id)}
+              className={`p-2.5 rounded-xl border text-left transition-all ${
+                transitionEffect === eff.id
+                  ? 'bg-crimson-950/40 border-crimson-500/80 shadow-md shadow-crimson-500/10'
+                  : 'bg-surface-subtle hover:bg-surface-hover border-white/5 text-neutral-400'
+              }`}
+            >
+              <div className={`text-xs font-semibold truncate ${transitionEffect === eff.id ? 'text-white' : 'text-neutral-300'}`}>
+                {eff.label}
+              </div>
+              <div className="text-[9px] text-neutral-500 truncate mt-0.5">{eff.desc}</div>
+            </button>
+          ))}
         </div>
       </div>
 

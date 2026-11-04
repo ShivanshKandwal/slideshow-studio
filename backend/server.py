@@ -300,6 +300,7 @@ class PipelineRequest(BaseModel):
     output_folder: str
     target_minutes: int = 5 # 3 to 10 min, or 0 for unlimited (all media in 1 video)
     aspect_ratio: str = "16:9"
+    transition_effect: str = "dynamic_mix" # "dynamic_mix", "zoom_in", "zoom_out", "fade", "static"
     music_track: Optional[str] = "calm_ambient_1"
     custom_music_path: Optional[str] = None
     title_template: str = "Aesthetic Moments Vol. {index}"
@@ -385,7 +386,16 @@ async def run_full_pipeline(req: PipelineRequest):
                 job_state["logs"].append(f"[Video {video_index}] Processed slide {current_slide}/{total_slides}...")
                 asyncio.run_coroutine_threadsafe(broadcast_state(), loop)
 
-            await loop.run_in_executor(None, engine.create_slideshow_chunk, chunk, out_filepath, audio_file, 3.0, on_slide_progress)
+            await loop.run_in_executor(
+                None,
+                engine.create_slideshow_chunk,
+                chunk,
+                out_filepath,
+                audio_file,
+                3.0,
+                on_slide_progress,
+                req.transition_effect
+            )
             
             generated_videos.append({
                 "path": out_filepath,
@@ -452,4 +462,6 @@ async def run_full_pipeline(req: PipelineRequest):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("server:app", host="127.0.0.1", port=8000, reload=True)
+    # When packaged into an executable with PyInstaller, reload must be False to avoid restart loops
+    is_frozen = getattr(sys, 'frozen', False)
+    uvicorn.run("server:app" if not is_frozen else app, host="127.0.0.1", port=8000, reload=not is_frozen)

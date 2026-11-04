@@ -26,6 +26,7 @@ export default function App() {
   // Video Settings
   const [targetMinutes, setTargetMinutes] = useState<number>(5); // 3 to 10 min, or 0 for unlimited
   const [aspectRatio, setAspectRatio] = useState<'9:16' | '16:9'>('16:9');
+  const [transitionEffect, setTransitionEffect] = useState<string>('dynamic_mix');
   const [titleTemplate, setTitleTemplate] = useState<string>('Daily Aesthetic Moments #{index}');
   const [privacyStatus, setPrivacyStatus] = useState<'private' | 'unlisted' | 'public'>('private');
 
@@ -153,11 +154,12 @@ export default function App() {
       } else {
         alert(data.detail || "Error scanning folder");
       }
-    } catch (e) {
-      // Simulated preview if backend server is not running yet
-      setImageCount(36);
-      setVideoCount(12);
-      setLogs((prev) => [...prev, `Preview scan: Found 36 photos and 12 videos.`]);
+    } catch (e: any) {
+      console.error("Backend scan error:", e);
+      setImageCount(0);
+      setVideoCount(0);
+      setLogs((prev) => [...prev, `[Connection Error] Could not connect to ChronoStudio backend engine. Please check if the background service is running.`]);
+      alert("Unable to scan folder: ChronoStudio backend engine is not reachable on http://localhost:8000.");
     } finally {
       setIsScanning(false);
     }
@@ -220,6 +222,7 @@ export default function App() {
           output_folder: outputFolder || 'C:\\Software\\SlideshowOutput',
           target_minutes: targetMinutes,
           aspect_ratio: aspectRatio,
+          transition_effect: transitionEffect,
           music_track: selectedMusicId,
           custom_music_path: customMusicPath,
           title_template: titleTemplate,
@@ -345,6 +348,8 @@ export default function App() {
               setTargetMinutes={setTargetMinutes}
               aspectRatio={aspectRatio}
               setAspectRatio={setAspectRatio}
+              transitionEffect={transitionEffect}
+              setTransitionEffect={setTransitionEffect}
               titleTemplate={titleTemplate}
               setTitleTemplate={setTitleTemplate}
               privacyStatus={privacyStatus}
