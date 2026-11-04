@@ -47,12 +47,12 @@ function startBackend() {
   const fs = require('fs');
   const logDir = path.join(app.getPath('appData'), 'ChronoStudio');
   if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
-  const logStream = fs.createWriteStream(path.join(logDir, 'backend.log'), { flags: 'a' });
+  const logFd = fs.openSync(path.join(logDir, 'backend.log'), 'a');
 
   backendProcess = spawn(backendExec, args, {
     cwd: cwd,
     shell: false,
-    stdio: ['ignore', logStream, logStream]
+    stdio: ['ignore', logFd, logFd]
   });
 
   backendProcess.on('error', (err) => {
