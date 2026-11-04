@@ -304,6 +304,16 @@ export default function App() {
           overallProgress={overallProgress}
           currentStepTitle={logs[logs.length - 1]}
           logs={logs}
+          outputFolder={outputFolder || 'C:\\Software\\SlideshowOutput'}
+          onOpenOutputFolder={() => {
+            const outPath = outputFolder || 'C:\\Software\\SlideshowOutput';
+            if ((window as any).require) {
+              try {
+                const { ipcRenderer } = (window as any).require('electron');
+                ipcRenderer.invoke('shell:openPath', outPath);
+              } catch (e) {}
+            }
+          }}
           onReset={async () => {
             try {
               await fetch('http://localhost:8000/api/reset-state', { method: 'POST' });

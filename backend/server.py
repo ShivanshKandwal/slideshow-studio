@@ -118,12 +118,12 @@ async def reset_state():
     except Exception:
         pass
 
-    # 3. Clean up in-production video files from output directory
+    # 3. Clean up only unfinished temporary .part files (NEVER delete completed .mp4 videos)
     deleted_count = 0
     if current_output_dir and os.path.exists(current_output_dir):
         try:
             for f in os.listdir(current_output_dir):
-                if f.endswith(".mp4") or f.endswith(".part"):
+                if f.endswith(".part"):
                     file_path = os.path.join(current_output_dir, f)
                     try:
                         os.remove(file_path)
@@ -138,7 +138,7 @@ async def reset_state():
     job_state["current_step"] = "Ready"
     job_state["step_index"] = 0
     job_state["progress"] = 0.0
-    job_state["logs"] = [f"Pipeline stopped completely. {deleted_count} in-production video(s) deleted. Ready."]
+    job_state["logs"] = ["Pipeline reset. Completed videos preserved in output folder. Ready."]
     await broadcast_state()
     return {"status": "reset", "deleted_files": deleted_count, "job_state": job_state}
 

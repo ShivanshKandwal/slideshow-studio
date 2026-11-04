@@ -123,6 +123,13 @@ ipcMain.handle('dialog:openAudioFile', async () => {
   return null;
 });
 
+// Open path in Explorer
+ipcMain.handle('shell:openPath', async (event, folderPath) => {
+  if (folderPath) {
+    shell.openPath(folderPath);
+  }
+});
+
 app.whenReady().then(() => {
   startBackend();
   createWindow();

@@ -8,7 +8,8 @@ import {
   UploadCloud, 
   CheckCircle2, 
   Clock, 
-  Loader2 
+  Loader2,
+  FolderOpen
 } from 'lucide-react';
 
 export interface WorkflowStep {
@@ -33,6 +34,8 @@ interface WorkflowProgressProps {
   overallProgress: number; // 0 to 100
   currentStepTitle?: string;
   logs: string[];
+  outputFolder?: string;
+  onOpenOutputFolder?: () => void;
   onReset?: () => void;
 }
 
@@ -42,6 +45,8 @@ export const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
   overallProgress,
   currentStepTitle,
   logs,
+  outputFolder,
+  onOpenOutputFolder,
   onReset
 }) => {
   return (
@@ -73,6 +78,15 @@ export const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
           <span className="font-mono text-xs font-bold text-crimson-400 min-w-[3rem] text-right">
             {overallProgress.toFixed(0)}%
           </span>
+          {overallProgress === 100 && onOpenOutputFolder && (
+            <button
+              onClick={onOpenOutputFolder}
+              className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md shadow-emerald-600/30 ml-1"
+            >
+              <FolderOpen className="w-3.5 h-3.5" />
+              <span>Open Output</span>
+            </button>
+          )}
           {onReset && (
             <button
               onClick={onReset}

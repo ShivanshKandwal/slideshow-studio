@@ -177,24 +177,29 @@ class FFmpegSlideshowEngine:
             choices = ["zoom_in", "zoom_out", "pan_right", "pan_left"]
             mode = choices[slide_index % len(choices)]
 
+        # Sub-pixel anti-jitter Ken Burns zoompan using 4K internal super-sampling
+        # The key to eliminating FFmpeg zoompan jitter is running zoompan at double resolution
+        # then scaling down to target (w, h) with bilinear/bicubic filter.
+        sw, sh = w * 2, h * 2
+
         if mode == "zoom_in":
-            # Scale up to 1.14x, smoothly centered
-            zoom_expr = f"min(zoom+0.0015,1.15)"
+            # Smoothly zoom from 1.0 to 1.15 over the duration
+            zoom_expr = f"1.0+0.15*(on/{frames})"
             x_expr = "iw/2-(iw/zoom/2)"
             y_expr = "ih/2-(ih/zoom/2)"
         elif mode == "zoom_out":
-            # Scale down from 1.15x to 1.0
-            zoom_expr = f"if(eq(on,1),1.15,max(1.0,zoom-0.0015))"
+            # Smoothly pull back from 1.15 to 1.0
+            zoom_expr = f"1.15-0.15*(on/{frames})"
             x_expr = "iw/2-(iw/zoom/2)"
             y_expr = "ih/2-(ih/zoom/2)"
         elif mode == "pan_right":
             # Gentle horizontal drift to right
-            zoom_expr = "1.08"
+            zoom_expr = "1.10"
             x_expr = f"(on/{frames})*(iw-iw/zoom)"
             y_expr = "ih/2-(ih/zoom/2)"
         elif mode == "pan_left":
             # Gentle horizontal drift to left
-            zoom_expr = "1.08"
+            zoom_expr = "1.10"
             x_expr = f"(1-on/{frames})*(iw-iw/zoom)"
             y_expr = "ih/2-(ih/zoom/2)"
         else: # static or fade
@@ -202,13 +207,13 @@ class FFmpegSlideshowEngine:
             x_expr = "0"
             y_expr = "0"
 
-        # Apply zoompan to foreground image before overlaying on blurred background
-        # zoompan creates motion at constant 30fps for the slide duration
+        # Apply super-sampled zoompan for 100% jitter-free smooth motion
         if mode in ["zoom_in", "zoom_out", "pan_right", "pan_left"]:
             filter_str = (
                 f"[0:v]scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},boxblur=20:10[bg];"
-                f"[0:v]scale={w}:{h}:force_original_aspect_ratio=decrease,"
-                f"zoompan=z='{zoom_expr}':x='{x_expr}':y='{y_expr}':d={frames}:s={w}x{h}:fps={fps}[fg];"
+                f"[0:v]scale={sw}:{sh}:force_original_aspect_ratio=decrease,"
+                f"zoompan=z='{zoom_expr}':x='{x_expr}':y='{y_expr}':d={frames}:s={sw}x{sh}:fps={fps},"
+                f"scale={w}:{h}:flags=bicubic[fg];"
                 f"[bg][fg]overlay=(W-w)/2:(H-h)/2,setsar=1[v]"
             )
         else:
@@ -226,6 +231,8 @@ class FFmpegSlideshowEngine:
             "-filter_complex", filter_str,
             "-map", "[v]",
             "-c:v", "libx264",
+            "-preset", "ultrafast",
+            "-tune", "stillimage",
             "-t", str(duration),
             "-pix_fmt", "yuv420p",
             "-r", str(fps),
@@ -252,6 +259,7 @@ class FFmpegSlideshowEngine:
             "-filter_complex", filter_str,
             "-map", "[v]",
             "-c:v", "libx264",
+            "-preset", "ultrafast",
             "-t", str(duration),
             "-pix_fmt", "yuv420p",
             "-r", "30",
